@@ -1,0 +1,558 @@
+{% extends 'mamtaApp/index.html' %}
+{% load staticfiles %}
+{% block body %}
+    <link href="{% static 'date/bootstrap-datepicker.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <style>
+        .card {
+            background: #fff;
+            min-height: 50px;
+            box-shadow: 0 0px 0px rgba(0, 0, 0, 0) !important;
+            position: relative;
+            margin-bottom: 30px;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            -ms-border-radius: 2px;
+            border-radius: 2px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+                position: relative;
+                min-height: 1px;
+                padding-right: 0px !important;
+                padding-left: 0px !important;
+            }
+
+            .buttondown {
+                margin-bottom: 10px;
+            }
+        }
+
+        .dt-buttons {
+            padding-top: 10px;
+        }
+
+        .datepicker {
+            top: 200px !important;
+            left: 45px;
+            z-index: 10;
+            display: block;
+        }
+
+        .input-group .form-control {
+            position: initial !important;
+            z-index: 2;
+            float: left;
+            width: 100% !important;
+            margin-bottom: 0;
+        }
+
+        .select2-container {
+            box-sizing: border-box;
+            display: inline-block;
+            margin: 0;
+            position: relative;
+            vertical-align: middle;
+            width: 100% !important;
+        }
+
+        .select2-drop-active {
+            margin-top: -25px !important;
+        }
+
+    </style>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row clearfix">
+                <div class="col-md-3 col-sm-6 col-xs-6" style="padding-right: 2px!important;">
+                    <div class="form-group ">
+                        <label for="cc-number" class="control-label mb-1">Start Date</label>
+                        <input data-date-end-date="0d" data-provide="datepicker" data-role="datepicker" name="startDate"
+                               id="startDate" type="text"
+                               class="form-control " placeholder=" DD/MM/YYYY" value="{{ date }}">
+                        <span></span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-6" style="padding-left: 2px!important;">
+                    <div class="form-group  ">
+                        <label for="cc-number" class="control-label mb-1">End Date</label>
+                        <input data-date-end-date="0d" data-provide="datepicker" data-role="datepicker" name="endDate"
+                               id="endDate" type="text"
+                               class="form-control " placeholder=" DD/MM/YYYY" value="{{ date }}">
+                        <span></span>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 col-xs-12">
+                    <label for="">Staff</label>
+                    <select class="form-control show-tick" id="staff">
+                        <option value="all">All</option>
+                        {% for user in users %}
+                            <option value="{{ user.pk }}">{{ user.name }}</option>
+                        {% endfor %}
+
+
+                    </select>
+
+                </div>
+                <div class="col-md-2 col-sm-12 col-xs-12 buttondown "
+                     style="margin-top: 26px;text-align: center!important;">
+
+                    <button style="background-color: #3F51B5;color: white;" type="button" class="btn  waves-effect "
+                            onclick="getData()">Search
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="row clearfix">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="card">
+
+                        <div class="header">
+                            <h2>
+                                COLLECTION (CASH)
+                            </h2>
+                            <button onclick="location.reload();" title="Refresh" style="    background-color: #4af3aa;color: white;top: 12px;position: absolute;right: 10px;
+    border-radius: 32%;" type="button"
+                                    class="btn  waves-effect ">
+                                <i class="material-icons">refresh</i></button>
+
+                        </div>
+
+
+                        <div class="body">
+                            <div class="table-responsive">
+                                <table id="collectionTable" class="table table-bordered table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Sl. No</th>
+                                        <th>PartyName</th>
+                                        <th>Amount(₹)</th>
+                                        <th>Collected By</th>
+                                        <th>ApprovedBy</th>
+                                        <th>Remark</th>
+                                        <th>Collected On</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th>Sl. No</th>
+                                        <th>PartyName</th>
+                                        <th>Amount(₹)</th>
+                                        <th>Collected By</th>
+                                        <th>ApprovedBy</th>
+                                        <th>Remark</th>
+                                        <th>Collected On</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </tfoot>
+                                    <tbody>
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row clearfix">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="card">
+
+                        <div class="header">
+                            <h2>
+                                COLLECTION (CHEQUE)
+                            </h2>
+                        </div>
+                        <div class="body">
+                            <div class="table-responsive">
+                                <table id="collectionTableCheque"
+                                       class="table table-bordered table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Sl. No</th>
+                                        <th>PartyName</th>
+                                        <th>Amount(₹)</th>
+                                        <th>Collected By</th>
+                                        <th>ApprovedBy</th>
+                                        <th>Remark</th>
+                                        <th>Collected On</th>
+                                        <th>Status</th>
+
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th>Sl. No</th>
+                                        <th>PartyName</th>
+                                        <th>Amount(₹)</th>
+                                        <th>Collected By</th>
+                                        <th>ApprovedBy</th>
+                                        <th>Remark</th>
+                                        <th>Collected On</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </tfoot>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <div class="modal fade" id="defaultModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="defaultModalLabel">Delete Collection?</h4>
+                </div>
+                <form id="ApproveForm">
+                    <input type="hidden" id="collectionID">
+
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link waves-effect" onclick="ChangeStatus()">Yes</button>
+                        <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">No</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="CollectionModal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="post" id="CollectionForm"> {% csrf_token %}
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="defaultModalLabel">Take New Collection</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row clearfix">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="material-icons">person</i>
+                                        </span>
+                                    <div class="form-line">
+
+
+                                        <select class="js-example-disabled-results" id="supplier">
+                                        </select>
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="material-icons">attach_money</i>
+                                        </span>
+                                    <div class="form-line">
+                                        <input type="number" class="form-control date"
+                                               name="AmountCol" id="AmountCol"
+                                               placeholder="Amount *">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                        <span class="input-group-addon">
+                                        <i class="material-icons">merge_type</i>
+                                        </span>
+                                    <div class="form-line">
+                                        <select class="form-control show-tick" id="PayMethodCol"
+                                                name="PayMethodCol">
+                                            <option value="Cash">Cash</option>
+                                            <option value="Cheque">Cheque</option>
+
+
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="material-icons">receipt</i>
+                                        </span>
+                                    <div class="form-line">
+                                        <input type="text" class="form-control date" id="RemarkCol"
+                                               name="RemarkCol" placeholder="Any Remark">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <input type="hidden" id="supID" name="supID">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link waves-effect" onclick="EditPayment()">Save
+                        </button>
+                        <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script src="{% static 'date/bootstrap-datepicker.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $.fn.datepicker.defaults.format = "dd/mm/yyyy";
+        $('.datepicker').datepicker({});
+    </script>
+
+    <script>
+        var ctab;
+        var dtab;
+
+        $(document).ready(function () {
+            $('.bootstrap-select').removeClass('form-control');
+
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var staff = $('#staff').val();
+
+
+            ctab = $('#collectionTable').dataTable({
+                dom: 'Blfrtip',
+                buttons: ['excel', 'print'
+                ],
+                "columnDefs": [
+                    {"name": "id", "targets": 0, "orderable": false},
+                    {"name": "buyerID.name", "targets": 1, "orderable": true},
+                    {"name": "amount", "targets": 2, "orderable": true},
+                    {"name": "collectedBy.name", "targets": 3, "orderable": true},
+                    {"name": "approvedBy", "targets": 4, "orderable": true},
+                    {"name": "remark", "targets": 5, "orderable": true},
+                    {"name": "datetime", "targets": 6, "orderable": true},
+                    {"name": "action", "targets": 7, "orderable": false},
+                    {"name": "action1", "targets": 8, "orderable": false},
+                ],
+                aaSorting: [[5, 'desc']],
+                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                "pageLength": 10,
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'mamtaApp:SupplierCollectionAdminListCashJson' %}?staff=" + staff + "&startDate=" + startDate + "&endDate=" + endDate
+
+            });
+
+            dtab = $('#collectionTableCheque').dataTable({
+                dom: 'Blfrtip',
+                buttons: ['excel', 'print'
+                ],
+                "columnDefs": [
+                    {"name": "id", "targets": 0, "orderable": false},
+                    {"name": "buyerID.name", "targets": 1, "orderable": true},
+                    {"name": "amount", "targets": 2, "orderable": true},
+                    {"name": "collectedBy.name", "targets": 3, "orderable": true},
+                    {"name": "approvedBy", "targets": 4, "orderable": true},
+                    {"name": "remark", "targets": 5, "orderable": true},
+                    {"name": "datetime", "targets": 6, "orderable": true},
+                    {"name": "action", "targets": 7, "orderable": false},
+                ],
+                aaSorting: [[5, 'desc']],
+                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                "pageLength": 10,
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'mamtaApp:SupplierCollectionAdminListChequeJson' %}?staff=" + staff + "&startDate=" + startDate + "&endDate=" + endDate
+
+            });
+            // ...
+        });
+
+        function getData() {
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var staff = $('#staff').val();
+
+
+            ctab.api().ajax.url('{% url "mamtaApp:SupplierCollectionAdminListCashJson" %}?staff=' + staff + '&startDate=' + startDate + '&endDate=' + endDate).load();
+            dtab.api().ajax.url('{% url "mamtaApp:SupplierCollectionAdminListChequeJson" %}?staff=' + staff + '&startDate=' + startDate + '&endDate=' + endDate).load();
+        }
+        function getImage(url) {
+
+            $('#cImage').attr("src", url);
+        }
+
+        function deleteCollection(id) {
+            $('#collectionID').val(id)
+
+        }
+
+
+        function ChangeStatus() {
+            var collectionID = $('#collectionID').val();
+
+            data = new FormData();
+            data.append('collectionID', collectionID);
+
+            $.ajax({
+                type: 'post',
+                url: '{% url 'mamtaApp:delete_collection_supplier_api' %}',
+                data: data,
+                contentType: false,
+                cache: false,
+                processData: false,
+
+
+                success: function (response) {
+                    if (response.message === 'success') {
+                        $('#name_status').addClass('validate_data');
+                        $('#name_status').html('Collection Deleted').fadeIn().fadeOut(2000);
+                        $('#defaultModal').modal('hide');
+                        ctab.api().ajax.reload();
+                        dtab.api().ajax.reload();
+
+                    }
+
+                    else {
+                        $('#name_status').addClass('validate_data');
+                        $('#name_status').html('error.').fadeIn().fadeOut(2000);
+
+                    }
+
+                },
+                error: function () {
+                    $('#name_status').addClass('validate_data');
+                    $('#name_status').html('error.').fadeIn().fadeOut(2000);
+                }
+            });
+
+
+        }
+
+
+        $(document).on("keyup", ".select2-search__field", function (e) {
+            console.log(e.which)
+
+            if (e.which === 38 || e.which === 40) {
+                return false;
+
+            }
+            else {
+
+
+                var inputVal = $(this).val();
+
+                $('#supplier').html('');
+                $.ajax({
+                    type: 'get',
+                    url: "{% url 'invoiceApp:get_buyer_list' %}?q=" + inputVal,
+                    success: function (response) {
+
+
+                        for (i in response.data) {
+
+                            $('#supplier').append('<option  data-subtext="' + response.data[i]["Address"] + '" value="' + response.data[i]["ID"] + '">' + response.data[i]["Name"] + '</option>');
+
+
+                        }
+
+                    },
+                    error: function () {
+                        $('#name_status').addClass('validate_data');
+                        $('#name_status').html('error.').fadeIn().fadeOut(2000);
+                    }
+
+
+                });
+
+
+            }
+
+            $('.js-example-disabled-results option').removeAttr('selected');
+        });
+        $(document).ready(function () {
+            $('.js-example-disabled-results').select2();
+        });
+
+        function getSupplierDetail(id, supplierName, supplierID, amount, paymentMode, remark) {
+            $('#supplier').html('');
+            $('#supplier').append('<option   value="' + supplierID + '" selected>' + supplierName + '</option>')
+            $('#AmountCol').val(amount);
+            $('#PayMethodCol').val(paymentMode);
+            $('#RemarkCol').val(remark);
+            $('#supID').val(id);
+        }
+
+        function EditPayment() {
+            var supID = $('#supID').val();
+            var CustomerCol = $('#supplier').val();
+            var AmountCol = $('#AmountCol').val();
+            var PayMethodCol = $('#PayMethodCol').val();
+            var RemarkCol = $('#RemarkCol').val();
+
+
+            if (CustomerCol === "" || AmountCol === "" || PayMethodCol === "") {
+                $('#name_status').addClass('validate_data');
+                $('#name_status').html('Fields are required.').fadeIn().fadeOut(2000);
+
+            }
+
+            else {
+                data = new FormData();
+                data.append('supID', supID);
+                data.append('CustomerCol', CustomerCol);
+                data.append('AmountCol', AmountCol);
+                data.append('PayMethodCol', PayMethodCol);
+                data.append('RemarkCol', RemarkCol);
+
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url 'mamtaApp:edit_collection_supplier_api' %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            ctab.api().ajax.reload();
+                            dtab.api().ajax.reload();
+                            $('#name_status').addClass('validate_data');
+                            $('#name_status').html('Collection Edit Successfully').fadeIn().fadeOut(2000);
+                            $('#CollectionForm')[0].reset();
+                            $('#CollectionModal').modal('hide');
+
+
+                        }
+
+                        else {
+                            $('#name_status').addClass('validate_data');
+                            $('#name_status').html('error').fadeIn().fadeOut(2000);
+                        }
+
+                    },
+                    error: function () {
+                        $('#name_status').addClass('validate_data');
+                        $('#name_status').html('error.').fadeIn().fadeOut(2000);
+                    }
+                });
+            }
+
+        }
+
+    </script>
+{% endblock %}
