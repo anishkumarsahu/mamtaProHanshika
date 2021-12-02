@@ -80,25 +80,25 @@ WSGI_APPLICATION = 'mamtaPro.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mamta',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'USER': 'root',
-        'PASSWORD': 'pass',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'mamta',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#         'USER': 'root',
+#         'PASSWORD': 'pass',
+#     }
+# }
 
 
 
@@ -202,7 +202,7 @@ JWT_AUTH = {
 
 }
 
-PWA_APP_NAME = '123DACN'
+PWA_APP_NAME = '456DACN'
 PWA_APP_DESCRIPTION = "Credit Management System."
 PWA_APP_THEME_COLOR = '#3F51B5'
 PWA_APP_DISPLAY = 'standalone'
