@@ -1709,6 +1709,7 @@ def generate_net_report_accountant(request):
     return response
 
 
+
 def generate_monthly_report_admin(request):
     companyID = request.GET.get('companyID')
     gDate = request.GET.get('gDate')
@@ -1721,10 +1722,16 @@ def generate_monthly_report_admin(request):
     g_total_card = 0.0
     c_total = 0.0
     c_total_cash = 0.0
+    s_total_cash = 0.0
+    s_total_cheque = 0.0
+    si_total_cheque = 0.0
     sale_list = []
     sale_list_card = []
     col_list = []
     col_list_cash = []
+    s_list_cash = []
+    s_list_cheque = []
+    si_list_cheque = []
     for d in days:
         day_string = d.strftime('%Y-%m-%d')
         sales_cash = Sales.objects.filter(datetime__contains=day_string,
@@ -1785,6 +1792,55 @@ def generate_monthly_report_admin(request):
         c_total_cash = c_total_cash + col_total_cash
 
         col_list_cash.append(col_dic_cash)
+
+
+        supCash = SupplierCollection.objects.filter(datetime__icontains=day_string, companyID_id=int(companyID),
+                                                    isApproved__exact=True, paymentMode='Cash')
+
+        supplier_cash_total = 0.0
+        for scash in supCash:
+            supplier_cash_total = supplier_cash_total + scash.amount
+
+        sup_dic_cash = {
+            'Date': d,
+            'Total': supplier_cash_total
+        }
+        s_total_cash = s_total_cash + supplier_cash_total
+
+        s_list_cash.append(sup_dic_cash)
+
+
+        supCheque = SupplierCollection.objects.filter(datetime__icontains=day_string, companyID_id=int(companyID),
+                                                    isApproved__exact=True, paymentMode='Cheque')
+
+        supplier_cheque_total = 0.0
+        for scheque in supCheque:
+            supplier_cheque_total = supplier_cheque_total + scheque.amount
+
+        sup_dic_cheque = {
+            'Date': d,
+            'Total': supplier_cheque_total
+        }
+        s_total_cheque = s_total_cheque + supplier_cheque_total
+
+        s_list_cheque.append(sup_dic_cheque)
+
+        si_col = SupplierInvoiceCollection.objects.filter(datetime__icontains=day_string,
+                                                          companyID_id=int(companyID),
+                                                          isApproved__exact=True, isDeleted__exact=False,
+                                                          ).order_by('datetime')
+
+        si_total = 0.0
+        for si in si_col:
+            si_total = si_total + si.amount
+
+        si_dic = {
+            'Date': d,
+            'Total': si_total
+        }
+        si_total_cheque = si_total_cheque + si_total
+
+        si_list_cheque.append(si_dic)
     company = Company.objects.get(pk=int(companyID))
 
     context = {
@@ -1792,6 +1848,12 @@ def generate_monthly_report_admin(request):
         'sales_card': sale_list_card,
         'collection': col_list,
         'collectionCash': col_list_cash,
+        's_list_cash': s_list_cash,
+        's_list_cheque': s_list_cheque,
+        'si_list_cheque': si_list_cheque,
+        's_total_cash': s_total_cash,
+        's_total_cheque': s_total_cheque,
+        'si_total_cheque': si_total_cheque,
         'Gtotal': g_total,
         'Cardtotal': g_total_card,
         'Ctotal': c_total,
@@ -1807,6 +1869,7 @@ def generate_monthly_report_admin(request):
 
     HTML(string=html).write_pdf(response, stylesheets=[CSS(string='@page { size: A5; margin: .3cm ; }')])
     return response
+
 
 
 
