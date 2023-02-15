@@ -13,7 +13,7 @@ from django.template.defaultfilters import register
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 
-from invoice.models import Sales
+from invoice.models import Sales,SalesEdit
 from .models import *
 
 from django_datatables_view.base_datatable_view import BaseDatatableView
@@ -37,7 +37,7 @@ def login_or_logout(request, type):
     data.statusType = type
 
     data.userID_id = request.user.pk
-    if request.user.username !='anish':
+    if request.user.username !='anish' and request.user.username !='superadmin' :
         data.save()
 
 
@@ -1819,4 +1819,46 @@ def login_and_logout_report(request):
 
     return render(request, 'mamtaApp/loginAndLogoutReport.html')
 
+
+class EditedCashInvoiceAdminListJson(BaseDatatableView):
+    order_columns = ['id', 'salesID.paymentMode', 'amountBefore', 'amountAfter', 'salesID.datetime', 'datetime']
+
+    def get_initial_queryset(self):
+
+        sDate = self.request.GET.get('startDate')
+        eDate = self.request.GET.get('endDate')
+        startDate = datetime.strptime(sDate, '%d/%m/%Y')
+        endDate = datetime.strptime(eDate, '%d/%m/%Y')
+
+        return SalesEdit.objects.filter(datetime__gte=startDate, datetime__lte=endDate + timedelta(days=1), salesID__isCash__exact=True, isDeleted__exact=False)
+
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(amountBefore__icontains=search) | Q(amountAfter__icontains=search) | Q(datetime__icontains=search)| Q(salesID__datetime__icontains=search) | Q(
+                    collectedBy__name__icontains=search)).order_by(
+                '-id')
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        i = 1
+        for item in qs:
+            json_data.append([
+                escape(i),
+                escape("Cash"),
+                escape(item.amountBefore),  # escape HTML for security reasons
+                escape(item.amountAfter),  # escape HTML for security reasons
+                escape(item.salesID.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+
+
+
+            ])
+            i = i + 1
+        return json_data
 

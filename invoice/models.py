@@ -131,3 +131,16 @@ class OpeningAndClosingBalance(models.Model):
     isDeleted = models.BooleanField(default=False)
     datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
     lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+
+class SalesEdit(models.Model):
+    salesID = models.ForeignKey(Sales, blank=True, null=True)
+    amountBefore = models.FloatField(default=0.0)
+    amountAfter = models.FloatField(default=0.0)
+    remark = models.CharField(max_length=300, default='N/A')
+    isDeleted = models.BooleanField(default=False)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    def __str__(self):
+        return str(self.salesID.billNumber)

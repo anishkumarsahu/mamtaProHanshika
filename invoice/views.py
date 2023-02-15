@@ -1086,6 +1086,7 @@ def edit_invoice(request):
             if sales < 1:
 
                 sale = Sales.objects.get(pk=int(invoiceID))
+                org_amount = sale.amount
 
                 sale.InvoiceSeriesID_id = isExist.pk
                 sale.billNumber = BillNumber
@@ -1094,6 +1095,11 @@ def edit_invoice(request):
                 sale.amount = float(Amount)
                 sale.customerName = CustomerName
                 if SalesType == 'Cash':
+                    editSale = SalesEdit()
+                    editSale.salesID_id = sale.pk
+                    editSale.amountBefore = org_amount
+                    editSale.amountAfter = float(Amount)
+                    editSale.save()
                     sale.isCash = True
                 if SalesType == 'Card':
                     sale.isCash = False
@@ -2878,3 +2884,20 @@ def delete_staff_advance_api(request):
         except:
             messages.success(request, 'Error. Please try again.')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def edit_cash_invoice_report(request):
+    request.session['nav'] = 'editCash'
+    users = StaffUser.objects.filter(isDeleted__exact=False, staffTypeID__name__icontains='sale').order_by('name')
+    date = datetime.today().now().strftime('%d/%m/%Y')
+    company = Company.objects.filter(isDeleted__exact=False)
+    buyers = Buyer.objects.filter(isDeleted__exact=False).order_by('name')
+
+    context = {
+        'users': users,
+        'date': date,
+        'company': company,
+        'buyer': buyers,
+    }
+    return render(request, 'invoice/EditedCashInvoiceReport.html', context)
+

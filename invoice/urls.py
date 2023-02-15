@@ -99,4 +99,7 @@ urlpatterns = [
     url(r'^edit_staff_advance/$', edit_staff_advance, name='edit_staff_advance'),
     url(r'^delete_staff_advance_api/$', delete_staff_advance_api, name='delete_staff_advance_api'),
 
+
+    url(r'^edit_cash_invoice_report/$', edit_cash_invoice_report, name='edit_cash_invoice_report'),
+
 ]

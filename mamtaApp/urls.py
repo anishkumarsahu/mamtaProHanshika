@@ -93,5 +93,6 @@ urlpatterns = [
 
     #print Report
     url(r'^print_report/$', print_report, name='print_report'),
+    url(r'^EditedCashInvoiceAdminListJson/$', EditedCashInvoiceAdminListJson.as_view(), name='EditedCashInvoiceAdminListJson'),
 
 ]

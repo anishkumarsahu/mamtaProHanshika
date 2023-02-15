@@ -61,3 +61,10 @@ class OnCAdmin(admin.ModelAdmin):
 
 
 admin.site.register(OpeningAndClosingBalance, OnCAdmin)
+
+
+class SalesEditAdmin(admin.ModelAdmin):
+    list_display = ['salesID', 'amountBefore','amountAfter', 'datetime', ]
+
+
+admin.site.register(SalesEdit, SalesEditAdmin)
