@@ -1500,16 +1500,20 @@ def generate_net_report_admin(request):
     date = datetime.today().date()
     sales_cash = Sales.objects.filter(datetime__icontains=day_string,
                                       salesType__icontains='cash',isDeleted__exact=False,
-                                      InvoiceSeriesID__companyID_id=int(companyID)).order_by('InvoiceSeriesID').order_by('numberMain')
+                                      InvoiceSeriesID__companyID_id=int(companyID)).order_by('InvoiceSeriesID',
+                                                 'numberMain')
     sales_card = Sales.objects.filter(datetime__icontains=day_string,
                                       salesType__icontains='card',isDeleted__exact=False,
-                                      InvoiceSeriesID__companyID_id=int(companyID)).order_by('InvoiceSeriesID').order_by('numberMain')
+                                      InvoiceSeriesID__companyID_id=int(companyID)).order_by('InvoiceSeriesID',
+                                                 'numberMain')
     sales_credit = Sales.objects.filter(datetime__icontains=day_string,
                                         salesType__icontains='credit',isDeleted__exact=False,
-                                        InvoiceSeriesID__companyID_id=int(companyID)).order_by('InvoiceSeriesID').order_by('numberMain')
+                                        InvoiceSeriesID__companyID_id=int(companyID)).order_by('InvoiceSeriesID',
+                                                 'numberMain')
     sales_mix = Sales.objects.filter(datetime__icontains=day_string,
                                      salesType__icontains='Mix',isDeleted__exact=False,
-                                     InvoiceSeriesID__companyID_id=int(companyID)).order_by('InvoiceSeriesID').order_by('numberMain')
+                                     InvoiceSeriesID__companyID_id=int(companyID)).order_by('InvoiceSeriesID',
+                                                 'numberMain')
     cash_total = 0.0
     for cash in sales_cash:
         cash_total = cash_total + cash.amount
