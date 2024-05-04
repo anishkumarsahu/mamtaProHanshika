@@ -53,9 +53,15 @@ admin.site.register(CashMoneyCollection,CashMoneyCollectionAdmin)
 
 
 class SupplyCollectionAdmin(admin.ModelAdmin):
-    list_display = ['buyerID','collectedBy','amount','remark','datetime']
+    list_display = ['amount','collectedBy','buyerID','remark','Location','datetime']
 
 admin.site.register(SupplierCollection,SupplyCollectionAdmin)
+
+
+class SupplierInvoiceCollectionAdmin(admin.ModelAdmin):
+    list_display = ['amount','collectedBy','buyerID','remark','Location','datetime']
+
+admin.site.register(SupplierInvoiceCollection,SupplierInvoiceCollectionAdmin)
 
 
 class LoginAndLogoutAdmin(admin.ModelAdmin):

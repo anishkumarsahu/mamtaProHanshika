@@ -222,7 +222,54 @@
                     </div>
                 </div>
             </div>
+        <div class="row clearfix">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="card">
 
+                        <div class="header">
+                            <h2>
+                                COLLECTION (INVOICE)
+                            </h2>
+                        </div>
+                        <div class="body">
+                            <div class="table-responsive">
+                                <table id="collectionTableInvoice"
+                                       class="table table-bordered table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Sl. No</th>
+                                        <th>PartyName</th>
+                                        <th>Amount(₹)</th>
+                                        <th>InvoiceNo.</th>
+                                        <th>Collected By</th>
+                                        <th>Remark</th>
+                                        <th>Location</th>
+                                        <th>Collected On</th>
+                                        <th>Status</th>
+
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                    <tr>
+                                      <th>Sl. No</th>
+                                        <th>PartyName</th>
+                                        <th>Amount(₹)</th>
+                                        <th>InvoiceNo.</th>
+                                        <th>Collected By</th>
+                                        <th>Remark</th>
+                                        <th>Location</th>
+                                        <th>Collected On</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </tfoot>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
     <div class="modal fade" id="defaultModal" tabindex="-1" role="dialog">
@@ -242,6 +289,30 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-link waves-effect" onclick="ChangeStatus()">Save</button>
+                        <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="defaultModalInvoice" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="defaultModalLabel">Approve Collection?</h4>
+                </div>
+                <form id="ApproveFormInvoice">
+                    <input type="hidden" id="collectionIDInvoice">
+
+                    <div class="modal-body">
+
+
+                    </div>
+
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link waves-effect" onclick="ChangeStatusInvoice()">Save</button>
                         <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">Close</button>
                     </div>
                 </form>
@@ -319,6 +390,29 @@
                 "ajax": "{% url 'mamtaApp:SupplierCollectionListChequeJson' %}?staff=" + staff + "&startDate=" + startDate + "&endDate=" + endDate
 
             });
+                       itab = $('#collectionTableInvoice').dataTable({
+                dom: 'Blfrtip',
+                buttons: ['excel', 'print'
+                ],
+                "columnDefs": [
+                    {"name": "id", "targets": 0, "orderable": false},
+                    {"name": "buyerID.name", "targets": 1, "orderable": true},
+                    {"name": "amount", "targets": 2, "orderable": true},
+                    {"name": "invoiceNumber", "targets": 3, "orderable": true},
+                    {"name": "collectedBy.name", "targets": 4, "orderable": true},
+                    {"name": "remark", "targets": 5, "orderable": true},
+                    {"name": "Location", "targets": 6, "orderable": true},
+                    {"name": "datetime", "targets": 7, "orderable": true},
+                    {"name": "action", "targets": 8, "orderable": false},
+                ],
+                aaSorting: [[7, 'desc']],
+                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                "pageLength": 10,
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'mamtaApp:SupplierCollectionInvoiceList' %}?staff=" + staff + "&startDate=" + startDate + "&endDate=" + endDate
+
+            });
             // ...
         });
 
@@ -330,6 +424,8 @@
 
             ctab.api().ajax.url('{% url "mamtaApp:SupplierCollectionListCashJson" %}?staff=' + staff + '&startDate=' + startDate + '&endDate=' + endDate).load();
             dtab.api().ajax.url('{% url "mamtaApp:SupplierCollectionListChequeJson" %}?staff=' + staff + '&startDate=' + startDate + '&endDate=' + endDate).load();
+                        itab.api().ajax.url('{% url "mamtaApp:SupplierCollectionInvoiceList" %}?staff=' + staff + '&startDate=' + startDate + '&endDate=' + endDate).load();
+
         }
         function getImage(url) {
 
@@ -382,6 +478,51 @@
 
 
         }
+
+        function approveCollectionInvoice(id) {
+            $('#collectionIDInvoice').val(id)
+
+        }
+                function ChangeStatusInvoice() {
+            var collectionID = $('#collectionIDInvoice').val();
+
+            data = new FormData();
+            data.append('collectionID', collectionID);
+
+            $.ajax({
+                type: 'post',
+                url: '{% url 'mamtaApp:approve_collection_supplier_invoice_api' %}',
+                data: data,
+                contentType: false,
+                cache: false,
+                processData: false,
+
+
+                success: function (response) {
+                    if (response.message === 'success') {
+                        $('#name_status').addClass('validate_data');
+                        $('#name_status').html('Collection Approved').fadeIn().fadeOut(2000);
+                        $('#defaultModalInvoice').modal('hide');
+                        itab.api().ajax.reload();
+
+                    }
+
+                    else {
+                        $('#name_status').addClass('validate_data');
+                        $('#name_status').html('error.').fadeIn().fadeOut(2000);
+
+                    }
+
+                },
+                error: function () {
+                    $('#name_status').addClass('validate_data');
+                    $('#name_status').html('error.').fadeIn().fadeOut(2000);
+                }
+            });
+
+
+        }
+
 
     </script>
     <script>

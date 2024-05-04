@@ -34,29 +34,7 @@
         <span style="font-size: 10px;">Date: {{ date }}</span>
         <span style="font-size: 9px;float: right">456DACN Collection Report-({{ company }})</span>
     </div>
-    <p style="font-size: 10px; margin: 2px;">Supply Collection (Cash)(Not Approved)</p>
-    <section>
-        <table class="table table-bordered" style="font-size: 9px;">
-            <thead>
-            <tr>
-                <th scope="col">Amount(₹)</th>
-                <th scope="col">Cus_Name</th>
-                <th scope="col">Remark</th>
 
-            </tr>
-            </thead>
-            <tbody>
-            {% for foo in supCash_pending %}
-                <tr>
-                    <td>{{ foo.amount }}</td>
-                    <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
-                    <td>{{ foo.remark }}</td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    </section>
     <p style="font-size: 10px; margin: 2px;">Collection<span
             style="float: right">Total: ₹ <strong>{{ col_total }}</strong></span></p>
     <section>
@@ -95,13 +73,38 @@
                 <tr>
                     <td>{{ foo.amount }}</td>
                     <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
-                    <td></td>
+                    <td>{{ foo.remark }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </section>
-    <p style="font-size: 10px; margin: 2px;">Supply Collection (Cash)<span
+    <p style="font-size: 10px; margin: 2px;">Supply Collection (Cash)(Not Approved)</p>
+    <section>
+        <table class="table table-bordered" style="font-size: 9px;">
+            <thead>
+            <tr>
+                <th scope="col">Amount(₹)</th>
+                <th scope="col">Cus_Name</th>
+                <th scope="col">Remark</th>
+                <th scope="col">Location</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for foo in supCash_pending %}
+                <tr>
+                    <td>{{ foo.amount }}</td>
+                    <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
+                    <td>{{ foo.remark }}</td>
+                    <td>{{ foo.Location|truncatewords:5 }}</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </section>
+    <p style="font-size: 10px; margin: 2px;">Supply Collection (Cash)(Approved)<span
             style="float: right">Total: ₹ <strong>{{ sup_total_cash }}</strong></span></p>
     <section>
         <table class="table table-bordered" style="font-size: 9px;">
@@ -110,6 +113,7 @@
                 <th scope="col">Amount(₹)</th>
                 <th scope="col">Cus_Name</th>
                 <th scope="col">Remark</th>
+                <th scope="col">Location</th>
             </tr>
             </thead>
             <tbody>
@@ -118,13 +122,13 @@
                     <td>{{ foo.amount }}</td>
                     <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
                     <td>{{ foo.remark }}</td>
+                    <td>{{ foo.Location|truncatewords:5 }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </section>
-    <p style="font-size: 10px; margin: 2px;">Supply Collection (CC)<span
-            style="float: right">Total: ₹ <strong>{{ sup_total_cheque }}</strong></span></p>
+<p style="font-size: 10px; margin: 2px;">Supply Collection (CC)(Not Approved)</p>
     <section>
         <table class="table table-bordered" style="font-size: 9px;">
             <thead>
@@ -132,50 +136,7 @@
                 <th scope="col">Amount(₹)</th>
                 <th scope="col">Cus_Name</th>
                 <th scope="col">Remark</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for foo in supCheque %}
-                <tr>
-                    <td>{{ foo.amount }}</td>
-                    <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
-                    <td>{{ foo.remark }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </section>
-    <p style="font-size: 10px; margin: 2px;">Invoice Supply Collection</p>
-    <section>
-        <table class="table table-bordered" style="font-size: 9px;">
-            <thead>
-            <tr>
-                <th scope="col">InvoiceNo.</th>
-                <th scope="col">Amount(₹)</th>
-                <th scope="col">Cus_Name</th>
-                <th scope="col">Remark</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for foo in invoices %}
-                <tr>
-                    <td> {{ foo.invoiceNumber }}</td>
-                    <td> {{ foo.amount }}</td>
-                    <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
-                    <td>{{ foo.remark }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </section>
-    <p style="font-size: 10px; margin: 2px;">Supply Collection (CC)(Not Approved)</p>
-    <section>
-        <table class="table table-bordered" style="font-size: 9px;">
-            <thead>
-            <tr>
-                <th scope="col">Amount(₹)</th>
-                <th scope="col">Cus_Name</th>
-                <th scope="col">Remark</th>
+                <th scope="col">Location</th>
             </tr>
             </thead>
             <tbody>
@@ -184,12 +145,37 @@
                     <td>{{ foo.amount }}</td>
                     <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
                     <td>{{ foo.remark }}</td>
+                    <td>{{ foo.Location|truncatewords:5 }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </section>
-    <p style="font-size: 10px; margin: 2px;">Invoice Supply Collection (Not Approved)</p>
+    <p style="font-size: 10px; margin: 2px;">Supply Collection (CC)(Approved)<span
+            style="float: right">Total: ₹ <strong>{{ sup_total_cheque }}</strong></span></p>
+    <section>
+        <table class="table table-bordered" style="font-size: 9px;">
+            <thead>
+            <tr>
+                <th scope="col">Amount(₹)</th>
+                <th scope="col">Cus_Name</th>
+                <th scope="col">Remark</th>
+                <th scope="col">Location</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for foo in supCheque %}
+                <tr>
+                    <td>{{ foo.amount }}</td>
+                    <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
+                    <td>{{ foo.remark }}</td>
+                    <td>{{ foo.Location|truncatewords:5 }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+   <p style="font-size: 10px; margin: 2px;">Invoice Supply Collection (Not Approved)</p>
     <section>
         <table class="table table-bordered" style="font-size: 9px;">
             <thead>
@@ -198,6 +184,7 @@
                 <th scope="col">Amount(₹)</th>
                 <th scope="col">Cus_Name</th>
                 <th scope="col">Remark</th>
+                <th scope="col">Location</th>
             </tr>
             </thead>
             <tbody>
@@ -207,11 +194,39 @@
                     <td> {{ foo.amount }}</td>
                     <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
                     <td>{{ foo.remark }}</td>
+                    <td>{{ foo.Location|truncatewords:5 }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </section>
+    <p style="font-size: 10px; margin: 2px;">Invoice Supply Collection (Approved)</p>
+    <section>
+        <table class="table table-bordered" style="font-size: 9px;">
+            <thead>
+            <tr>
+                <th scope="col">InvoiceNo.</th>
+                <th scope="col">Amount(₹)</th>
+                <th scope="col">Cus_Name</th>
+                <th scope="col">Remark</th>
+                <th scope="col">Location</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for foo in invoices %}
+                <tr>
+                    <td> {{ foo.invoiceNumber }}</td>
+                    <td> {{ foo.amount }}</td>
+                    <td>{{ foo.buyerID.name|truncatechars:20 }}</td>
+                    <td>{{ foo.remark }}</td>
+                    <td>{{ foo.Location|truncatewords:5 }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+
 </div>
 </body>
 </html>

@@ -94,5 +94,11 @@ urlpatterns = [
     #print Report
     url(r'^print_report/$', print_report, name='print_report'),
     url(r'^EditedCashInvoiceAdminListJson/$', EditedCashInvoiceAdminListJson.as_view(), name='EditedCashInvoiceAdminListJson'),
+    url(r'^SupplierCollectionInvoiceListAdmin/$', SupplierCollectionInvoiceListAdmin.as_view(),
+        name='SupplierCollectionInvoiceListAdmin'),
+    url(r'^SupplierCollectionInvoiceList/$', SupplierCollectionInvoiceList.as_view(),
+        name='SupplierCollectionInvoiceList'),
+    url(r'^approve_collection_supplier_invoice_api/$', approve_collection_supplier_invoice_api,
+        name='approve_collection_supplier_invoice_api'),
 
 ]
