@@ -3,7 +3,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta
 from functools import wraps
-
+from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
@@ -14,8 +14,10 @@ from django.template.defaultfilters import register
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 from django_datatables_view.base_datatable_view import BaseDatatableView
+import requests
 
 from invoice.models import Sales, SalesEdit
+from utils.utils import send_message
 from .models import *
 
 
@@ -1615,8 +1617,9 @@ def add_company_api(request):
             messages.success(request, 'Error. Please try again.')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER')) \
  \
- \
-@check_group('Both')
+                @ check_group('Both')
+
+
 def edit_company_api(request):
     if request.method == 'POST':
         # try:
@@ -1702,6 +1705,16 @@ def take_collection_supplier_api(request):
             collection.lng = lng
             collection.Location = loc
             collection.save()
+            msg = "Sir {}, Your Payment for Rs.{}/- on Dt.{} ag. Ref. No. {} has been initiated, Kindly confirm the same. If you have any query Please feel free to contact on this no. 8014762639. Thanks, Harshika Electricals".format(
+                collection.buyerID.name, collection.amount, str(collection.datetime.strftime('%d-%m-%Y')),
+                str(collection.pk).zfill(8))
+            try:
+                numbers = str(collection.buyerID.phoneNumber).split('.')
+                for n in numbers:
+                    send_message(n, msg, collection.buyerID.name, str(collection.pk).zfill(8),collection.paymentMode)
+            except:
+                send_message(collection.buyerID.phoneNumber, msg, collection.buyerID.name, str(collection.pk).zfill(8),
+                             collection.paymentMode)
 
             return JsonResponse({'message': 'success'})
 
@@ -1734,6 +1747,16 @@ def take_collection_invoice_supplier_api(request):
             collection.lng = lng
             collection.Location = loc
             collection.save()
+
+            msg = "Sir {}, Your Payment for Rs.{}/- on Dt.{} ag. Ref. No. {} has been initiated, Kindly confirm the same. If you have any query Please feel free to contact on this no. 8014762639. Thanks, Harshika Electricals".format(
+                collection.buyerID.name, collection.amount, str(collection.datetime.strftime('%d-%m-%Y')),
+                str(collection.pk).zfill(8))
+            try:
+                numbers = str(collection.buyerID.phoneNumber).split('.')
+                for n in numbers:
+                    send_message(n, msg, collection.buyerID.name, str(collection.pk).zfill(8))
+            except:
+                send_message(collection.buyerID.phoneNumber, msg, collection.buyerID.name, str(collection.pk).zfill(8))
 
             return JsonResponse({'message': 'success'})
 
@@ -1804,6 +1827,17 @@ def approve_collection_supplier_api(request):
             buy = Buyer.objects.get(pk=int(collection.buyerID.pk))
             buy.closingBalance = buy.closingBalance - float(collection.amount)
             buy.save()
+            msg = "Sir {}, Your Payment for Rs.{}/- on Dt.{} ag. Ref. No. {} has been Recieved. If you have any query Please feel free to contact on this no. 8014762639. Thanks, Harshika Electricals".format(
+                collection.buyerID.name, collection.amount, str(collection.datetime.strftime('%d-%m-%Y')),
+                str(collection.pk).zfill(8))
+            try:
+                numbers = str(collection.buyerID.phoneNumber).split('.')
+                for n in numbers:
+                    send_message(n, msg, collection.buyerID.name, str(collection.pk).zfill(8))
+            except:
+                send_message(collection.buyerID.phoneNumber, msg, collection.buyerID.name, str(collection.pk).zfill(8),
+                             collection.paymentMode)
+
             return JsonResponse({'message': 'success'})
 
         except:
@@ -1966,6 +2000,7 @@ class SupplierCollectionInvoiceListAdmin(BaseDatatableView):
             i = i + 1
         return json_data
 
+
 @csrf_exempt
 def approve_collection_supplier_invoice_api(request):
     if request.method == 'POST':
@@ -1981,13 +2016,25 @@ def approve_collection_supplier_invoice_api(request):
             buy = Buyer.objects.select_related().get(pk=int(collection.buyerID.pk))
             buy.closingBalance = buy.closingBalance - float(collection.amount)
             buy.save()
+            msg = "Sir {}, Your Payment for Rs.{}/- on Dt.{} ag. Ref. No. {} has been Recieved. If you have any query Please feel free to contact on this no. 8014762639. Thanks, Harshika Electricals".format(
+                collection.buyerID.name, collection.amount, str(collection.datetime.strftime('%d-%m-%Y')),
+                str(collection.pk).zfill(8))
+            try:
+                numbers = str(collection.buyerID.phoneNumber).split('.')
+                for n in numbers:
+                    send_message(n, msg, collection.buyerID.name, str(collection.pk).zfill(8))
+            except:
+                send_message(collection.buyerID.phoneNumber, msg, collection.buyerID.name, str(collection.pk).zfill(8))
+
             return JsonResponse({'message': 'success'})
 
         except:
             return JsonResponse({'message': 'fail'})
 
+
 class SupplierCollectionInvoiceList(BaseDatatableView):
-    order_columns = ['id', 'buyerID.name', 'amount','invoiceNumber', 'collectedBy.name', 'remark','Location', 'datetime','action']
+    order_columns = ['id', 'buyerID.name', 'amount', 'invoiceNumber', 'collectedBy.name', 'remark', 'Location',
+                     'datetime', 'action']
 
     def get_initial_queryset(self):
 
@@ -2009,13 +2056,15 @@ class SupplierCollectionInvoiceList(BaseDatatableView):
                                                                              isDeleted__exact=False,
                                                                              collectedBy=int(staff),
                                                                              collectedBy__companyID_id=user.companyID_id)
+
     def filter_queryset(self, qs):
 
         search = self.request.GET.get('search[value]', None)
         if search:
             qs = qs.filter(
-                Q(invoiceNumber__icontains=search) | Q(Location__icontains=search) | Q(amount__icontains=search) | Q(remark__icontains=search) | Q(datetime__icontains=search) | Q(
-                    collectedBy__name__icontains=search)| Q(
+                Q(invoiceNumber__icontains=search) | Q(Location__icontains=search) | Q(amount__icontains=search) | Q(
+                    remark__icontains=search) | Q(datetime__icontains=search) | Q(
+                    collectedBy__name__icontains=search) | Q(
                     buyerID__name__icontains=search)).order_by(
                 '-id')
 
@@ -2028,7 +2077,8 @@ class SupplierCollectionInvoiceList(BaseDatatableView):
             if item.isApproved == False:
                 button = '''
                 <button type="button" class="btn btn-primary waves-effect" data-toggle="modal"
-                           data-target="#defaultModalInvoice" onclick="approveCollectionInvoice({})">PENDING</button>'''.format(item.pk)
+                           data-target="#defaultModalInvoice" onclick="approveCollectionInvoice({})">PENDING</button>'''.format(
+                    item.pk)
             else:
                 button = '''<button type="button" class="btn btn-success waves-effect">APPROVED</button>'''
 
@@ -2047,3 +2097,90 @@ class SupplierCollectionInvoiceList(BaseDatatableView):
             i = i + 1
         return json_data
 
+
+# messages
+@check_group('Both')
+def manage_message(request):
+    request.session['nav'] = 'message'
+    return render(request, 'mamtaApp/manageMessage.html')
+
+
+class ManageMessageListJson(BaseDatatableView):
+    order_columns = ['collectionID', 'messageTo', 'phone', 'message', 'datetime', 'status']
+
+    def get_initial_queryset(self):
+
+        return WhatsappMessageStatus.objects.filter(isDeleted__exact=False)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(messageTo__icontains=search) | Q(status__icontains=search) | Q(paymentType__icontains=search) |
+                Q(collectionID__icontains=search) | Q(phone__icontains=search) | Q(message__icontains=search) |
+                Q(datetime__icontains=search))
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            if 'Moderator' in self.request.user.groups.values_list('name', flat=True):
+                action = '''N/A'''
+            else:
+                if item.status:
+                    status = '''<span><a class="hideModerator"><button style="background-color: green;color: white;" type="button"
+                               class="btn  waves-effect ">
+                           Success</button> </a></span>'''
+                else:
+                    status = '''<span><a class="hideModerator" data-toggle="modal" data-target="#defaultModalEdit" onclick="editCompany('{}')"><button style="background-color: Red;color: white;" type="button"
+                               class="btn  waves-effect " data-toggle="modal"
+                               data-target="#largeModalEdit">
+                           Failed</button> </a></span>'''.format(item.pk)
+            json_data.append([
+                escape(item.collectionID),
+                escape(item.messageTo),  # escape HTML for security reasons
+                escape(item.phone),  # escape HTML for security reasons
+                escape(item.message),  # escape HTML for security reasons
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                status,
+
+            ])
+        return json_data
+
+
+@transaction.atomic
+@csrf_exempt
+def re_send_message_sales(request):
+    if request.method == 'POST':
+        try:
+            id = request.POST.get("messageID")
+            obj = WhatsappMessageStatus.objects.select_related().get(pk=int(id))
+            try:
+                msg = WhatsappMessage.objects.filter(isDeleted__exact=False).last()
+                if msg.used < msg.balance:
+                    try:
+                        url = msg.rootUrl + "send?number=91" + obj.phone + "&type=text&message=" + obj.message + "&instance_id=" + msg.instanceID + "&access_token=" + msg.apiKey
+                        r = requests.get(url, verify=False)
+                        data = r.json()
+                        if data['status'] == 'success' and data['message']:
+                            obj.status = True
+                            msg.used = (msg.used + 1)
+                            msg.save()
+                            obj.save()
+                            return JsonResponse({'message': 'success'}, safe=False)
+                        else:
+                            obj.status = False
+                            obj.save()
+                            return JsonResponse({'message': 'error'}, safe=False)
+
+                    except:
+                        obj.status = False
+                        obj.save()
+                        return JsonResponse({'message': 'error'}, safe=False)
+            except:
+                return JsonResponse({'message': 'error'}, safe=False)
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)

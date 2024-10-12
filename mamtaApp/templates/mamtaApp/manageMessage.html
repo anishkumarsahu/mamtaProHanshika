@@ -1,0 +1,149 @@
+{% extends 'mamtaApp/index.html' %}
+{% load staticfiles %}
+{% block body %}
+<section class="content">
+    <div class="container-fluid">
+        <div class="block-header">
+
+        </div>
+        <div class="row clearfix">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 hidePadding">
+                <div class="card">
+
+                    <div class="header">
+                        <h2>
+                            MESSAGE LIST
+                        </h2>
+
+                    </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table id="buyerCreditTable" class="table table-bordered table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th>PaymentID</th>
+                                    <th>PartyName</th>
+                                    <th>PhoneNumber</th>
+                                    <th>Message</th>
+                                    <th>Datetime</th>
+                                    <th>Status</th>
+
+                                </tr>
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <th>PaymentID</th>
+                                    <th>PartyName</th>
+                                    <th>PhoneNumber</th>
+                                    <th>Message</th>
+                                    <th>Datetime</th>
+                                    <th>Status</th>
+                                </tr>
+                                </tfoot>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div class="modal fade" id="defaultModalEdit" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="defaultModalLabel">Resend Message?</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="messageID" name="messageID">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link waves-effect" onclick="confirmResend()">Resend</button>
+                <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    var messageTable;
+    $(document).ready(function () {
+
+      messageTable=  $('#buyerCreditTable').dataTable({
+            dom: 'Blfrtip',
+            buttons: ['excel', 'print'
+            ],
+            "columnDefs": [
+                { "name": "collectionID", "targets": 0, "orderable": false },
+                { "name": "messageTo", "targets": 1, "orderable": true },
+                { "name": "phone", "targets": 2, "orderable": true },
+                { "name": "message", "targets": 3, "orderable": true },
+                { "name": "datetime", "targets": 4, "orderable": true },
+                { "name": "status", "targets": 5, "orderable": true },
+
+            ],
+            aaSorting: [[4, 'desc']],
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            "pageLength": 10,
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{% url 'mamtaApp:ManageMessageListJson' %}"
+        });
+    });
+
+
+
+    function editCompany(messageID) {
+        $('#messageID').val(messageID);
+
+    }
+
+   function confirmResend() {
+        var messageID = $('#messageID').val();
+        var formdata = new FormData();
+        formdata.append('messageID', messageID);
+
+        $.ajax({
+            url: "{% url 'mamtaApp:re_send_message_sales' %}",
+            type: "post",
+            data: formdata,
+            contentType: false,
+            cache: false,
+            processData: false,
+
+            success: function (response) {
+                console.log(response)
+                if (response.message === 'success') {
+                     $('#name_status').addClass('validate_data');
+                    $('#name_status').html('Success! Message sent successfully.');
+                    $('#name_status').fadeIn().fadeOut(2000);
+
+                    $('#defaultModalEdit').modal('hide');
+                    messageTable.api().ajax.url('{% url "mamtaApp:ManageMessageListJson" %}').load();
+                   
+                } else {
+                   $('#name_status').addClass('validate_data');
+                    $('#name_status').html('Error! Please Retry again.');
+                    $('#name_status').fadeIn().fadeOut(2000);
+                }
+
+                return response;
+            },
+            error: function () {
+                $('#name_status').addClass('validate_data');
+                $('#name_status').html('Error! Please Retry again.');
+                $('#name_status').fadeIn().fadeOut(2000);
+            }
+
+        });
+
+    }
+
+</script>
+{% endblock %}

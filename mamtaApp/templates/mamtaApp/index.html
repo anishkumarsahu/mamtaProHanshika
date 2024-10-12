@@ -112,6 +112,12 @@
                         </a>
                     </li>
 
+                    <li {% if request.session.nav == 'message' %} class="active" {% endif %}>
+                        <a href="{% url 'mamtaApp:manage_message' %}">
+                            <i class="material-icons">message</i>
+                            <span>Manage Messages</span>
+                        </a>
+                    </li>
                     <li {% if request.session.nav == 'company1' %} class="active" {% endif %}>
                         <a href="{% url 'mamtaApp:manage_company' %}">
                             <i class="material-icons">location_city</i>

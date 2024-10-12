@@ -100,5 +100,9 @@ urlpatterns = [
         name='SupplierCollectionInvoiceList'),
     url(r'^approve_collection_supplier_invoice_api/$', approve_collection_supplier_invoice_api,
         name='approve_collection_supplier_invoice_api'),
+# messages
+    url(r'^manage_message/$', manage_message, name='manage_message'),
+    url(r'^re_send_message_sales/$', re_send_message_sales, name='re_send_message_sales'),
+    url(r'^ManageMessageListJson/$', ManageMessageListJson.as_view(), name='ManageMessageListJson'),
 
 ]

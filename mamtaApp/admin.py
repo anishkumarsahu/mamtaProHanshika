@@ -74,3 +74,16 @@ class StaffAdvanceToBuyerAdmin(admin.ModelAdmin):
     list_display = ['buyerID','amount','isDeleted','datetime']
 
 admin.site.register(StaffAdvanceToBuyer,StaffAdvanceToBuyerAdmin)
+
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ['instanceID', 'apiKey', 'balance', 'used', 'datetime', 'lastUpdatedOn', 'isDeleted']
+
+
+admin.site.register(WhatsappMessage, MessageAdmin)
+
+
+class MessageStatusAdmin(admin.ModelAdmin):
+    list_display = ['messageTo', 'phone', 'status', 'message', 'datetime', 'lastUpdatedOn', 'isDeleted']
+
+
+admin.site.register(WhatsappMessageStatus, MessageStatusAdmin)

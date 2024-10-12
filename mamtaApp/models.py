@@ -165,3 +165,36 @@ class StaffAdvanceToBuyer(models.Model):
     companyID = models.ForeignKey(Company, blank=True, null=True)
     datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
     lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+
+class WhatsappMessage(models.Model):
+    name = models.CharField(max_length=300, blank=True, null=True)
+    rootUrl = models.CharField(max_length=500, blank=True, null=True)
+    instanceID = models.CharField(max_length=300, blank=True, null=True)
+    apiKey = models.CharField(max_length=300, blank=True, null=True)
+    balance = models.FloatField(default=0)
+    used = models.FloatField(default=0)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = 'L) Whatsapp Message Package List'
+
+class WhatsappMessageStatus(models.Model):
+    message = models.TextField(blank=True, null=True)
+    messageTo = models.CharField(max_length=300, blank=True, null=True)
+    paymentType = models.CharField(max_length=300, blank=True, null=True)
+    phone = models.CharField(max_length=300, blank=True, null=True)
+    status = models.BooleanField(default=False)
+    collectionID = models.CharField(max_length=300, blank=True, null=True)
+    companyID = models.ForeignKey(Company, blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.messageTo)
+
+    class Meta:
+        verbose_name_plural = 'J) Message Sent  List'
