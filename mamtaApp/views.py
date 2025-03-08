@@ -887,7 +887,7 @@ class SupplierCollectionListChequeJson(BaseDatatableView):
 
 class SupplierCollectionAdminListChequeJson(BaseDatatableView):
     order_columns = ['id', 'buyerID.name', 'amount', 'collectedBy.name', 'approvedBy', 'remark', 'Location', 'datetime',
-                     'action']
+                     'action' 'action1']
 
     def get_initial_queryset(self):
 
@@ -921,6 +921,19 @@ class SupplierCollectionAdminListChequeJson(BaseDatatableView):
         json_data = []
         i = 1
         for item in qs:
+            action = '''<span><a onclick="getSupplierDetail('{}','{}','{}','{}','{}','{}')" class="hideModerator" ><button style="background-color: #3F51B5;color: white;" type="button"
+                                                  class="btn  waves-effect " data-toggle="modal"
+                                                  data-target="#CollectionModal">
+                                              <i class="material-icons">border_color</i></button> </a>
+
+
+
+                                          <button onclick="deleteCollection('{}')" style="background-color: #e91e63;color: white;" type="button" class="btn  waves-effect " data-toggle="modal" data-target="#defaultModal">
+
+
+                                                                           <i class="material-icons">delete</i></button></span>'''.format(
+                item.pk, item.buyerID.name, item.buyerID.pk, item.amount, item.paymentMode, item.remark, item.pk)
+
             if item.isApproved == False:
                 button = '''
                 <button type="button" class="btn btn-primary waves-effect" data-toggle="modal"
@@ -938,7 +951,8 @@ class SupplierCollectionAdminListChequeJson(BaseDatatableView):
                 escape(item.remark),  # escape HTML for security reasons
                 escape(item.Location),  # escape HTML for security reasons
                 escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
-                button
+                button,
+                action
 
             ])
             i = i + 1
